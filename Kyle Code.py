@@ -50,6 +50,41 @@ def createHands():
         DealerHand.append(Deck[0])
         Deck.pop(0)
 
+def getPlayerScore():
+    global PlayerScore, PlayerHand
+    PlayerScore = 0
+    singleValues = []
+    multiValues = []
+    for card in PlayerHand:
+        if isinstance(card.value, int):
+            singleValues += [card]
+        elif isinstance(card.value, list):
+            multiValues += [card]
+    for card in singleValues:
+        PlayerScore += card.value
+    for card in multiValues:
+        if PlayerScore + card.value[-1] > BlackJack:
+            PlayerScore += card.value[0]
+        else:
+            PlayerScore += card.value[-1]
+
+def getDealerScore():
+    global DealerScore, DealerHand
+    DealerScore = 0
+    singleValues = []
+    multiValues = []
+    for card in DealerHand:
+        if isinstance(card.value, int):
+            singleValues += [card]
+        elif isinstance(card.value, list):
+            multiValues += [card]
+    for card in singleValues:
+        DealerScore += card.value
+    for card in multiValues:
+        if DealerScore + card.value[-1] > BlackJack:
+            DealerScore += card.value[0]
+        else:
+            DealerScore += card.value[-1]
 
 # Function to give cards.
 def passOutCard(CardReceiver):
@@ -78,30 +113,14 @@ def Play():
     print(f"\nThe dealers top card is: {DealerHand[-1].name}")
     action = input("\nWould you like to hit or stand? (Type 'Hit' to hit, or 'Stand' to stand): ").lower()
     if action == "hit":
-        PlayerScore = 0
-        for card in PlayerHand:
-            if isinstance(card.value, int):
-                PlayerScore += card.value
-            elif isinstance(card.value, list):
-                if PlayerScore + card.value[-1] > BlackJack:
-                    PlayerScore += card.value[0]
-                else:
-                    PlayerScore += card.value[-1]
+        getPlayerScore()
         if PlayerScore > BlackJack:
             print(f"You cannot hit because your hand's value exceeds {BlackJack}.")
             Play()
         else:
             print("The dealer handed you a card.")
             passOutCard("Player")
-            PlayerScore = 0
-            for card in PlayerHand:
-                if isinstance(card.value, int):
-                    PlayerScore += card.value
-                elif isinstance(card.value, list):
-                    if PlayerScore + card.value[-1] > BlackJack:
-                        PlayerScore += card.value[0]
-                    else:
-                        PlayerScore += card.value[-1]
+            getPlayerScore()
             print(f"Total value of the cards in your hand is: {PlayerScore}")
             Play()
     elif action == "stand":
@@ -114,46 +133,16 @@ def Play():
         print(f"\nThe dealers hand is: {string}")
 
         time.sleep(0.5)
-        DealerScore = 0
-        for card in DealerHand:
-            if isinstance(card.value, int):
-                DealerScore += card.value
-            elif isinstance(card.value, list):
-                if DealerScore + card.value[-1] > BlackJack:
-                    DealerScore += card.value[0]
-                else:
-                    DealerScore += card.value[-1]
-        if DealerScore < round(BlackJack / 3.5):
-            DealerScore = 0
-            for card in DealerHand:
-                if isinstance(card.value, int):
-                    DealerScore += card.value
-                elif isinstance(card.value, list):
-                    if DealerScore + card.value[-1] > BlackJack:
-                        DealerScore += card.value[0]
-                    else:
-                        DealerScore += card.value[-1]
+        getDealerScore()
+        if DealerScore < round(BlackJack - 6):
+            getDealerScore()
             while True:
                 passOutCard("Dealer")
-                if isinstance(DealerHand[-1].value, int):
-                    DealerScore += DealerHand[-1].value
-                elif isinstance(DealerHand[-1].value, list):
-                    if DealerScore + DealerHand[-1].value[-1] > BlackJack:
-                        DealerScore += DealerHand[-1].value[0]
-                    else:
-                        DealerScore += DealerHand[-1].value[-1]
+                getDealerScore()
                 if DealerScore >= 15:
                     break
         print(f"The dealers total value is: {DealerScore}")
-        PlayerScore = 0
-        for card in PlayerHand:
-            if isinstance(card.value, int):
-                PlayerScore += card.value
-            elif isinstance(card.value, list):
-                if PlayerScore + card.value[-1] > BlackJack:
-                    PlayerScore += card.value[0]
-                else:
-                    PlayerScore += card.value[-1]
+        getPlayerScore()
         print(f"Your total value is: {PlayerScore}")
         if DealerScore > BlackJack:
             DealerScore = 0
